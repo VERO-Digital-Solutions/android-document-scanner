@@ -6,6 +6,8 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.exifinterface.media.ExifInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.kuama.documentscanner.support.*
 
 /**
@@ -20,35 +22,41 @@ class UriToBitmap : UseCase<Bitmap, UriToBitmap.Params>() {
     class Params(val uri: Uri, val screenOrientationDeg: Int)
 
     override suspend fun run(params: Params): Either<Failure, Bitmap> =
-        try {
-            val image = BitmapFactory.decodeStream(params.uri.toFile().inputStream())
-            val exif = ExifInterface(params.uri.toFile().inputStream())
+        withContext(Dispatchers.IO) {
+            try {
+                val image = params.uri.toFile().inputStream().use { inputStream ->
+                    BitmapFactory.decodeStream(inputStream)
+                }
+                val exif = params.uri.toFile().inputStream().use { inputStream ->
+                    ExifInterface(inputStream)
+                }
+                
+                val pictureOrientation =
+                    exif.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )
+                val matrix = Matrix()
 
-            val pictureOrientation =
-                exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL
+                when (pictureOrientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90F)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180F)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270F)
+                }
+
+                when (params.screenOrientationDeg) {
+                    90 -> matrix.postRotate(90F)
+                    180 -> matrix.postRotate(180F)
+                    270 -> matrix.postRotate(270F)
+                }
+
+                Right(
+                    Bitmap.createBitmap(
+                        image, 0, 0, image.width, image.height, matrix, true
+                    )
                 )
-            val matrix = Matrix()
-
-            when (pictureOrientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90F)
-                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180F)
-                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270F)
+            } catch (throwable: Throwable) {
+                Left(Failure(throwable))
             }
-
-            when (params.screenOrientationDeg) {
-                90 -> matrix.postRotate(90F)
-                180 -> matrix.postRotate(180F)
-                270 -> matrix.postRotate(270F)
-            }
-
-            Right(
-                Bitmap.createBitmap(
-                    image, 0, 0, image.width, image.height, matrix, true
-                )
-            )
-        } catch (throwable: Throwable) {
-            Left(Failure(throwable))
         }
 }
