@@ -25,7 +25,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }
@@ -93,7 +93,7 @@ dependencies {
     implementation "com.jakewharton.timber:timber:5.0.1"
 
     // for preview stack
-    implementation "com.yuyakaido.android:card-stack-view:2.3.4"
+    implementation "com.github.yuyakaido:CardStackView:v2.3.4"
 
     // for image loading
     implementation("com.squareup.picasso:picasso:2.71828")
