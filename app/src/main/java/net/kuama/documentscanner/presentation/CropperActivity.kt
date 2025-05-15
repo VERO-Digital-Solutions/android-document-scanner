@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.view.doOnNextLayout
 import net.kuama.documentscanner.R
+import net.kuama.documentscanner.data.Corners
 import net.kuama.documentscanner.databinding.DsActivityCropperBinding
 import net.kuama.documentscanner.exceptions.MissingCornersException
 import net.kuama.documentscanner.extensions.hide
@@ -27,6 +28,8 @@ import net.kuama.documentscanner.extensions.show
 import net.kuama.documentscanner.extensions.toByteArray
 import net.kuama.documentscanner.utils.PointUtils.arePointsOverlapping
 import net.kuama.documentscanner.viewmodels.CropperViewModel
+import org.opencv.core.Point
+import org.opencv.core.Size
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -60,17 +63,25 @@ class CropperActivity : AppCompatActivity() {
 
             // Wait for bitmap to be loaded on view, then draw corners
             binding.cropWrap.doOnNextLayout {
-                val resultingCorners = cropModel.corners.value
-
-                if (resultingCorners == null) {
-                    finish()
-                    cropModel.errors.value = MissingCornersException()
+                val detected = cropModel.corners.value
+                val width = binding.cropPreview.measuredWidth
+                val height = binding.cropPreview.measuredHeight
+                val insetX = width * 0.1
+                val insetY = height * 0.1
+                val fallbackCorners = Corners(
+                    topLeft = Point(insetX, insetY),
+                    topRight = Point(width - insetX, insetY),
+                    bottomLeft = Point(insetX, height - insetY),
+                    bottomRight = Point(width - insetX, height - insetY),
+                    size = Size(width.toDouble(), height.toDouble())
+                )
+                val resultingCorners = if (detected == null) {
+                    fallbackCorners
                 } else {
-                    val point1 = resultingCorners.topLeft
-                    val point2 = resultingCorners.topRight
-                    val point3 = resultingCorners.bottomLeft
-                    val point4 = resultingCorners.bottomRight
-
+                    val point1 = detected.topLeft
+                    val point2 = detected.topRight
+                    val point3 = detected.bottomLeft
+                    val point4 = detected.bottomRight
                     if (arePointsOverlapping(point1, point2) ||
                         arePointsOverlapping(point1, point3) ||
                         arePointsOverlapping(point1, point4) ||
@@ -78,17 +89,18 @@ class CropperActivity : AppCompatActivity() {
                         arePointsOverlapping(point2, point4) ||
                         arePointsOverlapping(point3, point4)
                     ) {
-                        finish()
-                        cropModel.errors.value = MissingCornersException()
+                        fallbackCorners
+                    } else {
+                        detected
                     }
-
-                    binding.cropHud.onCorners(
-                        corners = resultingCorners,
-                        height = binding.cropPreview.measuredHeight,
-                        width = binding.cropPreview.measuredWidth
-                    )
-                    binding.cropHud.updateRect()
                 }
+                cropModel.corners.value = resultingCorners
+                binding.cropHud.onCorners(
+                    corners = resultingCorners,
+                    height = height,
+                    width = width
+                )
+                binding.cropHud.updateRect()
             }
         }
 
