@@ -133,8 +133,8 @@ afterEvaluate {
                 // artifact androidJavadocsJar
                 artifact androidSourcesJar
 
-                groupId 'net.kuama.android'
-                artifactId 'documentscanner'
+                groupId 'com.github.VERO-Digital-Solutions'
+                artifactId 'android-document-scanner'
                 version project.property('version_name')
             }
         }
