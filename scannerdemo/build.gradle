@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'net.kuama.scannerdemo'
-    compileSdk 33
 
     defaultConfig {
+        compileSdk 36
         applicationId "net.kuama.scannerdemo"
-        minSdk 21
-        targetSdk 32
+        minSdk 24
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 

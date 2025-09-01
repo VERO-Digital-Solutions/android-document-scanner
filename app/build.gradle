@@ -1,33 +1,25 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "com.diffplug.spotless"
 apply plugin: "maven-publish"
-apply plugin: "jacoco"
-
-apply from: '../jacoco/modules.gradle'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "30.0.3"
+    compileSdkVersion 36
     resourcePrefix = "ds_"
 
     defaultConfig {
 
-        minSdkVersion 21
-        targetSdkVersion 32
-        versionCode project.property("version_code").toInteger()
-        versionName project.property("version_name") as String
-
+        minSdkVersion 24
+        targetSdkVersion 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -35,7 +27,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             testCoverageEnabled true
-            debuggable true
         }
         debug {
             testCoverageEnabled true
@@ -44,16 +35,22 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
+    }
+    namespace 'net.kuama.documentscanner'
+    publishing {
+        singleVariant("release") {}
     }
 
 }
+
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "androidx.core:core-ktx:1.8.0"
     implementation "androidx.appcompat:appcompat:1.4.2"
-    api "com.github.kuamanet:android-native-opencv:0.1"
+    implementation "com.github.VERO-Digital-Solutions:android-native-opencv:bb69449a44"
     // ViewModel
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
     // LiveData
@@ -65,11 +62,11 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.5.1"
 
     // CameraX core library using camera2 implementation
-    implementation "androidx.camera:camera-camera2:1.2.0-alpha03"
+    implementation "androidx.camera:camera-camera2:1.4.2"
     // CameraX Lifecycle Library
-    implementation "androidx.camera:camera-lifecycle:1.2.0-alpha03"
+    implementation "androidx.camera:camera-lifecycle:1.4.2"
     // CameraX View class
-    implementation "androidx.camera:camera-view:1.2.0-alpha03"
+    implementation "androidx.camera:camera-view:1.4.2"
 
     // zoomable image view
     implementation "com.github.chrisbanes:PhotoView:2.3.0"
@@ -77,17 +74,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation "androidx.exifinterface:exifinterface:1.3.3"
-
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
-    androidTestImplementation "androidx.test.ext:junit:1.1.3"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
-    androidTestImplementation "com.github.kuamanet:android-native-opencv:0.1"
-
-    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0'
-
-    androidTestImplementation "androidx.test:runner:1.4.0"
-    androidTestImplementation "androidx.test:rules:1.4.0"
 
     // for convenient logging
     implementation "com.jakewharton.timber:timber:5.0.1"
@@ -99,19 +85,10 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.71828")
 }
 
-spotless {
-    kotlin {
-        target "**/*.kt"
-        // EditorConfig support is broken: https://github.com/diffplug/spotless/issues/142
-        ktlint("0.35.0").userData(["disabled_rules": "no-wildcard-imports,import-ordering,chain-wrapping"])
-    }
-}
-
 task sourceJar(type: Jar) {
     from android.sourceSets.main.kotlin.srcDirs
     from android.sourceSets.main.java.srcDirs
     from fileTree(dir: 'src/libs', include: ['*.jar'])
-    classifier "sources"
 }
 
 task androidSourcesJar(type: Jar) {

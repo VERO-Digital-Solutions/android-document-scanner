@@ -148,23 +148,23 @@ class PaperRectangle : View {
     }
 
     // Override onDraw method to draw the rectangle and circles
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas?.drawPath(path, fillPaint)
-        canvas?.drawPath(path, rectPaint)
+        canvas.drawPath(path, fillPaint)
+        canvas.drawPath(path, rectPaint)
 
         if (cropMode) {
             // Draw circles at the corner points
 
-            canvas?.drawCircle(topLeft.x.toFloat(), topLeft.y.toFloat(), 40F, extCirclePaint)
-            canvas?.drawCircle(topRight.x.toFloat(), topRight.y.toFloat(), 40F, extCirclePaint)
-            canvas?.drawCircle(bottomLeft.x.toFloat(), bottomLeft.y.toFloat(), 40F, extCirclePaint)
-            canvas?.drawCircle(bottomRight.x.toFloat(), bottomRight.y.toFloat(), 40F, extCirclePaint)
+            canvas.drawCircle(topLeft.x.toFloat(), topLeft.y.toFloat(), 40F, extCirclePaint)
+            canvas.drawCircle(topRight.x.toFloat(), topRight.y.toFloat(), 40F, extCirclePaint)
+            canvas.drawCircle(bottomLeft.x.toFloat(), bottomLeft.y.toFloat(), 40F, extCirclePaint)
+            canvas.drawCircle(bottomRight.x.toFloat(), bottomRight.y.toFloat(), 40F, extCirclePaint)
 
-            canvas?.drawCircle(topLeft.x.toFloat(), topLeft.y.toFloat(), 35F, intCirclePaint)
-            canvas?.drawCircle(topRight.x.toFloat(), topRight.y.toFloat(), 35F, intCirclePaint)
-            canvas?.drawCircle(bottomLeft.x.toFloat(), bottomLeft.y.toFloat(), 35F, intCirclePaint)
-            canvas?.drawCircle(bottomRight.x.toFloat(), bottomRight.y.toFloat(), 35F, intCirclePaint)
+            canvas.drawCircle(topLeft.x.toFloat(), topLeft.y.toFloat(), 35F, intCirclePaint)
+            canvas.drawCircle(topRight.x.toFloat(), topRight.y.toFloat(), 35F, intCirclePaint)
+            canvas.drawCircle(bottomLeft.x.toFloat(), bottomLeft.y.toFloat(), 35F, intCirclePaint)
+            canvas.drawCircle(bottomRight.x.toFloat(), bottomRight.y.toFloat(), 35F, intCirclePaint)
         }
     }
 
